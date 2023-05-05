@@ -4,8 +4,6 @@ class Engine
     dimx;
     dimy;
     board;
-    drawer;
-    controller;
     boardCSS;
 
     constructor(numOfPlayers, dimx, dimy)//, color1, color2)
@@ -13,6 +11,7 @@ class Engine
         this.dimx = dimx;
         this.dimy = dimy;
         this.numOfPlayers = numOfPlayers;
+        this.currentplayer = 0;
         this.initializeBoardDimensions();
         this.initializeCSSBoardDimensions();
         this.initializeHTML();
@@ -30,7 +29,6 @@ class Engine
             }
         }
     }
-
     initializeBoardDimensions()
     {
         this.board = new Array(this.dimx);
@@ -55,9 +53,50 @@ class Engine
     takeInputAndMoveToControllerAndDraw()
     {
         let moveString = document.getElementById("nameInput").value;
-        this.controller.convertAndValidateInputAndMakeMove(moveString);
-        this.drawer.draw();
-        this.controller.printPlayerTurnMessage();
+        var move = this.convertInputToMove(moveString);
+        if (this.controller(move, this.board))
+        {
+            console.log(this.currentplayer)
+            this.currentplayer = (this.currentplayer + 1) % this.numOfPlayers;
+            this.makeBoardChangeAfterMove(move)
+            this.drawer(this.board);
+        }
+        else
+        {
+            console.log("Invalid Move");
+        }
+        this.printPlayerTurnMessage()
+    }
+
+    convertInputToMove(playerMove) {
+        let cells = playerMove.split(" ")
+        let indexedCells = [];
+        cells.forEach(element => {
+            let col = element.charAt(0).charCodeAt(0) - 'a'.charCodeAt(0)
+            let row = this.board.length - parseInt(element.charAt(1));
+            //console.log(col, row)
+            indexedCells.push(new Point(row, col))
+        })
+        return this.createGameMoveFromInput(indexedCells)
+    }
+    controller(){
+
+    }
+
+    drawer(board){
+
+    }
+    createGameMoveFromInput() {
+
+    }
+
+    makeBoardChangeAfterMove(move)
+    {
+    }
+
+    printPlayerTurnMessage()
+    {
+        console.log("Player " + (parseInt(this.currentplayer) + 1) + " turn");
     }
 }
 
@@ -71,9 +110,9 @@ class Piece
     {
     }
 }
-
-class Move
-{
-    constructor() {
-    }
-}
+//
+// class Move
+// {
+//     constructor() {
+//     }
+// }

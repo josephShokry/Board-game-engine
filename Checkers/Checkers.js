@@ -16,13 +16,13 @@ class CheckersPiece extends Piece{
     }
 }
 
-class CheckersMove extends Move {
+class CheckersMove{
     constructor(point1, point2) {
-        super();
         this.point1 = point1
         this.point2 = point2
     }
 }
+
 const blackPiece = '⚫';
 const redPiece = '🔴';
 const redQueen = '⭕'
@@ -33,11 +33,17 @@ const n = 8;
 class CheckersEngine extends Engine {
     constructor() {
         super(2, n, n)
-        this.controller = new CheckersController(this.board)
-        this.drawer = new CheckersDrawer(this.board, this.boardCSS)
-        this.drawer.draw()
+        this.paths = new Array(new Array(n))
+        for (let i = 0; i < n; i++)
+            this.paths[i] = new Array(n)
+
+        // this.controller = new CheckersController(this.board)
+        // this.drawer = new CheckersDrawer(this.board, this.boardCSS)
+
+        this.drawer(this.board)
     }
     initializeCssBoard(){
+        console.log("TEST");
         let cell1 = new Cell( '#e59110', undefined, undefined, undefined, undefined)
         let cell2 = new Cell( '#ffcfb6', undefined, undefined, undefined, undefined)
         for(let i= 0;i<this.dimx;i++) {
@@ -66,36 +72,59 @@ class CheckersEngine extends Engine {
             this.board[7][i-1] = new CheckersPiece(0, redPiece)
         }
     }
-}
 
-class CheckersDrawer extends Drawer{
-    constructor(board, boardCSS) {
-        super(board, boardCSS)
-    }
-}
-class CheckersController extends Controller{
-    constructor(board) {
-        super(2, board)
-        this.paths = new Array(new Array(n))
-        for (let i = 0; i < n; i++)
-            this.paths[i] = new Array(n)
-    }
-    createGameMoveFromInput(indexedCells){
-        return new CheckersMove(indexedCells[0], indexedCells[1])
+    controller(move, board){
+        return this.validateMove(move, board)
     }
 
-    validateMove(indexedMoves){
+    drawer(board)
+    {
+        this.initializeCss()
+        console.log(board)
+        for (let i = 0; i < this.dimy; i++) {
+            for (let j = 0; j < this.dimx; j++) {
+                let temp = this.convertIndicesToHTMLDivs(i, j)
+                temp.textContent = ''
+                let node = document.createTextNode(board[this.dimy - i - 1][j].getAsci())
+                temp.appendChild(node);
+            }
+        }
+    }
+    initializeCss(){
+        console.log(this.boardCSS)
+        for (let i = 0; i < this.boardCSS.length; i++)
+            for (let j = 0; j < this.boardCSS[i].length; j++){
+                this.initializeCssCell(this.boardCSS[i][j], this.convertIndicesToHTMLDivs(i, j))
+            }
+    }
+    initializeCssCell(cell, divElement) {
+        divElement.className = cell.className
+        divElement.style.background = cell.color
+        divElement.style.width = cell.width + 'px'
+        divElement.style.height = cell.height + 'px'
+        divElement.style.fontSize = cell.font + 'px'
+        divElement.style.border = cell.border + 'px solid'
+        if (cell.shape == "circle")
+            divElement.style.borderRadius = '50%';
+    }
+
+    convertIndicesToHTMLDivs(i, j) {
+        let colName = String.fromCharCode('a'.charCodeAt(0) + j)
+        let rowNum = i+1
+        return document.getElementById(colName + rowNum);
+    }
+    validateMove(indexedMoves, board){
         let firstCell = indexedMoves.point1
         let secondCell = indexedMoves.point2
-        let currentPiece = this.board[firstCell.x][firstCell.y]
+        let currentPiece = board[firstCell.x][firstCell.y]
 
         if(indexedMoves.length > 2)
             return false
+        this.curre
         if(currentPiece === emptySquare || this.board[secondCell.x][secondCell.y] != emptySquare
-         || currentPiece.player != this.currentplayer)
+            || currentPiece.player != this.currentplayer)
             return false
 
-        console.log(this.currentplayer)
         let nullPoint = new Point(-1, -1)
         for (let i = 0; i < n; i++)
             this.paths[i].fill(nullPoint)
@@ -112,7 +141,6 @@ class CheckersController extends Controller{
         })
         return flag
     }
-
     getValidMoves(cell, paths){
         let validCells = [];
         this.populateValidCellsArray(cell, 0, cell ,validCells)
@@ -169,6 +197,21 @@ class CheckersController extends Controller{
             this.board[cell2.x][cell2.y].dy = [-1, 1, -1, 1]
             this.board[cell2.x][cell2.y].asci = blackQueen
         }
+    }
+    createGameMoveFromInput(indexedCells){
+        return new CheckersMove(indexedCells[0], indexedCells[1])
+    }
+}
+
+class CheckersDrawer extends Drawer{
+    constructor(board, boardCSS) {
+        super(board, boardCSS)
+    }
+}
+class CheckersController extends Controller{
+    constructor(board) {
+        super(2, board)
+
     }
 }
 let engine = new CheckersEngine();
