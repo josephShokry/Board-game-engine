@@ -31,7 +31,7 @@ object GameEngine {
     game match {
       case "connect4" =>
         val player = state._2 % 2 + 1
-        val col = move.toInt - 1
+        val col = move.toUpperCase().charAt(0) - 'A' //
         //val col =  move.toInt - 'a'.toInt
         if (col < 0 || col > 6 || state._1(0)(col) != 0) {
           (false, state._1)
@@ -54,6 +54,7 @@ object GameEngine {
         Connect4_drawer(state(0))
         drawBoardGUI_Connect4(state(0), frame)
       case "sudoku" =>
+        state = (fillRandom(state(0)),0) ///////
         Sudokudrawer(state(0))
         drawBoardGUI_Sudoku(state(0),frame)
 
@@ -125,24 +126,33 @@ def isValidMoveSudoku(board: Array[Array[Int]], row: Int, col: Int, num: Int): B
   }
 }
 
-  def fillRandom(array: Array[Array[Int]]):  Array[Array[Int]] = {
-    val random = new Random()
-    var count = 0
-    while (count < 17) {
-      val row = random.nextInt(9)
-      val col = random.nextInt(9)
-      if (array(row)(col) == 0) {
-        var value = random.nextInt(9) + 1;
-        while(! isValidMoveSudoku(array, row, col, value))
-          value = random.nextInt(9) + 1
+  import scala.annotation.tailrec
+  import scala.util.Random
+
+  def fillRandom(array: Array[Array[Int]]): Array[Array[Int]] = {
+
+    def fillRandomHelper(count: Int, acc: Array[Array[Int]]): Array[Array[Int]] = {
+      if (count >= 17) acc
+      else {
+        val random = new Random()
+        val row = random.nextInt(9)
+        val col = random.nextInt(9)
+        if (acc(row)(col) == 0) {
+          val value = Stream.continually(random.nextInt(9) + 1).find(isValidMoveSudoku(acc, row, col, _)).get
+          val updatedArray = acc.updated(row, acc(row).updated(col, value))
+          fillRandomHelper(count + 1, updatedArray)
+        } else {
+          fillRandomHelper(count, acc)
+        }
       }
-      count += 1
     }
-    array
+
+    fillRandomHelper(0, array)
   }
+
   def Sudokucontroller(game: String, move: String, state: (Array[Array[Int]], Int)): (Boolean, Array[Array[Int]]) = {
 
-    val indexedMove = move.split(" ").map(_.toInt)
+    val indexedMove = move.split(" ").map(_.toInt)       //toUpperCase().charAt(0) - 'A'
     indexedMove match {
       case Array(row, col, value) if  isValidMoveSudoku(state._1, row, col, value) =>
         val newBoard = state._1.updated(row, state._1(row).updated(col, value))
