@@ -20,7 +20,7 @@ object GameEngine {
   }
 
 
-  def Connect4_controller(game: String, move: String, state: (Array[Array[Int]], Int)): (Boolean, Array[Array[Int]]) = {
+  def Connect4_controller(move: String, state: (Array[Array[Int]], Int)): (Boolean, Array[Array[Int]]) = {
 
     def updateState(player: Int, col: Int, state: Array[Array[Int]]): Option[(Array[Array[Int]], (Int, Int))] = {
       (5 to 0 by -1).find(row => state(row)(col) == 0).map { row =>
@@ -28,20 +28,20 @@ object GameEngine {
       }
     }
 
-    game match {
-      case "connect4" =>
-        val player = state._2 % 2 + 1
-        val col = move.toUpperCase().charAt(0) - 'A' //
-        //val col =  move.toInt - 'a'.toInt
-        if (col < 0 || col > 6 || state._1(0)(col) != 0) {
-          (false, state._1)
-        } else {
-          updateState(player, col, state._1) match {
-            case Some((newState, (row, col))) => (true, newState)
-            case None => (false, state._1)
-          }
-        }
+
+    val player = state._2 % 2 + 1
+    val col = move.toUpperCase().charAt(0) - 'A' //
+    //val col =  move.toInt - 'a'.toInt
+    if (col < 0 || col > 6 || state._1(0)(col) != 0) {
+      (false, state._1)
+    } else {
+      updateState(player, col, state._1) match {
+        case Some((newState, (row, col))) => (true, newState)
+        case None => (false, state._1)
+      }
     }
+
+
   }
 
 
@@ -64,9 +64,9 @@ object GameEngine {
       var currentState: (Boolean, Array[Array[Int]]) = null
       game match
         case "connect4" =>
-          currentState = Connect4_controller(game, input, state)
+          currentState = Connect4_controller(input, state)
         case "sudoku" =>
-          currentState = Sudokucontroller(game, input, state)
+          currentState = Sudokucontroller(input, state)
 
       if(currentState(0) == true) {
         state = (currentState(1), (state(1)+1) % numOfPlayers)
@@ -150,7 +150,7 @@ def isValidMoveSudoku(board: Array[Array[Int]], row: Int, col: Int, num: Int): B
     fillRandomHelper(0, array)
   }
 
-  def Sudokucontroller(game: String, move: String, state: (Array[Array[Int]], Int)): (Boolean, Array[Array[Int]]) = {
+  def Sudokucontroller(move: String, state: (Array[Array[Int]], Int)): (Boolean, Array[Array[Int]]) = {
 
     val indexedMove = move.split(" ").map(_.toInt)       //toUpperCase().charAt(0) - 'A'
     indexedMove match {
