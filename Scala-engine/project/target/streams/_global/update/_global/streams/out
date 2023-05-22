@@ -1,3 +1,3 @@
-[debug] not up to date. inChanged = false, force = false
-[debug] Updating ProjectRef(uri("file:/C:/Users/Hesham%20Youssef/Desktop/Game-Engine-Sc/project/"), "game-engine-sc-build")...
-[debug] Done updating ProjectRef(uri("file:/C:/Users/Hesham%20Youssef/Desktop/Game-Engine-Sc/project/"), "game-engine-sc-build")
+[debug] not up to date. inChanged = true, force = false
+[debug] Updating ProjectRef(uri("file:/D:/hard/github%20repos/Board-game-engine/Scala-engine/project/"), "scala-engine-build")...
+[debug] Done updating ProjectRef(uri("file:/D:/hard/github%20repos/Board-game-engine/Scala-engine/project/"), "scala-engine-build")

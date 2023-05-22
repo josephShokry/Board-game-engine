@@ -82,7 +82,7 @@ object GameEngine {
 
   def Sudokucontroller(move: String, state: (Array[Array[(Int,Boolean)]], Int)): (Boolean, Array[Array[(Int,Boolean)]]) = {
     if(move.equals("solve"))
-      return (true, solveSodoku(state(0)))
+      return (true, solveSudoku(state(0)))
 
     val col = move(0).toInt -'a'.toInt
     val row = 9-(move(1).toInt -'0'.toInt)
@@ -101,8 +101,8 @@ object GameEngine {
     }
   }
 
-  def solveSodoku(state: (Array[Array[(Int,Boolean)]])): (Array[Array[(Int,Boolean)]]) = {
-    val prologFile = new Query("consult('C:/Omar/Projects/Paradigms/Board-game-engine/Scala-engine/src/main/prolog/sudokuSolver.pl')")
+  def solveSudoku(state: (Array[Array[(Int,Boolean)]])): (Array[Array[(Int,Boolean)]]) = {
+    val prologFile = new Query("consult('src/main/prolog/sudokuSolver.pl')")
     if(!prologFile.hasSolution){
       println("prolog file not found")
       return state
@@ -113,6 +113,7 @@ object GameEngine {
     val prologResult = Query(query)
     if(!prologResult.hasSolution) {
       println("Can't find solution")
+
       return state
     }
 
