@@ -54,8 +54,6 @@ def chessController(move:String,state:(Array[Array[(Colors,Pieces)]], Int)) : (B
   val indexedMove = changeLettersToIndex(move)
   val moveFrom = (8 - indexedMove(0)(1),indexedMove(0)(0))
   val moveTo = (8 - indexedMove(1)(1),indexedMove(1)(0))
-  println(s"move from $moveFrom")
-  println(s"move to $moveTo")
   val validatingMove = validate(state(0), moveTo, moveFrom, state(1))
 
   if(validatingMove) applyMove(state(0), moveTo, moveFrom)
@@ -124,7 +122,6 @@ def addAttackInConsecutiveCellsPawn(inc1:Int, inc2:Int, range:Int, point:(Int,In
     .takeWhile(i=>(board(point._1 + i * inc1)(point._2 + i * inc2)._1 != Colors.Empty &&
       board(point._1 + i * inc1)(point._2 + i * inc2)._1 != board(point._1)(point._2)._1))
     .map(i => (point._1 + i * inc1, point._2 + i * inc2)).toList
-  println(res)
   res
 }
 

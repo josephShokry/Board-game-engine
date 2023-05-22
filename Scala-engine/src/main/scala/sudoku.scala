@@ -1,10 +1,15 @@
 package Sudoku
-import java.awt.{BasicStroke, BorderLayout, Color, Font, Graphics, Graphics2D, RenderingHints}
+import org.jpl7.Query
+
+import java.awt.{BasicStroke, BorderLayout, Color, Font, Graphics, Graphics2D, GridLayout, RenderingHints}
 import javax.swing.{JFrame, JPanel}
 import scala.util.Random
 import scala.collection.mutable.Set
 import scala.swing.{Dimension, GridPanel, Label}
 import javax.swing.SwingUtilities
+import javax.swing.*
+//import java.awt._
+
 object GameEngine {
 
   def isValidMoveSudoku(board: Array[Array[(Int,Boolean)]], row: Int, col: Int, num: Int): Boolean = {
@@ -76,6 +81,8 @@ object GameEngine {
   }
 
   def Sudokucontroller(move: String, state: (Array[Array[(Int,Boolean)]], Int)): (Boolean, Array[Array[(Int,Boolean)]]) = {
+    if(move.equals("solve"))
+      return (true, solveSodoku(state(0)))
 
     val col = move(0).toInt -'a'.toInt
     val row = 9-(move(1).toInt -'0'.toInt)
@@ -94,9 +101,71 @@ object GameEngine {
     }
   }
 
+  def solveSodoku(state: (Array[Array[(Int,Boolean)]])): (Array[Array[(Int,Boolean)]]) = {
+    val prologFile = new Query("consult('C:/Omar/Projects/Paradigms/Board-game-engine/Scala-engine/src/main/prolog/sudokuSolver.pl')")
+    if(!prologFile.hasSolution){
+      println("prolog file not found")
+      return state
+    }
 
+    val prologString = convertToPrologFormat(state)
+    val query = prologString + ", sudoku(Row), maplist(label, Row)."
+    val prologResult = Query(query)
+    if(!prologResult.hasSolution) {
+      println("Can't find solution")
+      return state
+    }
 
+    println("Solution found!")
+    val solution = prologResult.oneSolution().get("Row").toString;
+    updateBoardWithSolution(state, solution)
+  }
+  def convertToPrologFormat(board: (Array[Array[(Int,Boolean)]])): String = {
+    var s = "Row = [";
+    board.foreach(row => {
+      s = s + "["
+      row.zipWithIndex.foreach {
+        case (elem, idx) =>
+          s = changeSudokuBoardNumbersToStrings(idx, elem(0), s)
+      }
+    })
 
+    s = s.substring(0, s.size - 1) + ']'
+    s
+  }
+
+  def updateBoardWithSolution(state: Array[Array[(Int, Boolean)]], inputString: String): Array[Array[(Int, Boolean)]] = {
+    val cleanString = inputString.replace("[", "")
+      .replace("]", "").replace(" ", "")
+    val rows = cleanString.split(",")
+
+    val arrays = rows.grouped(9).toArray.map(_.map(_.toInt))
+
+    val tupleArray = Array.ofDim[(Int, Boolean)](arrays.length, arrays(0).length)
+
+    for (i <- arrays.indices; j <- arrays(i).indices) {
+      tupleArray(i)(j) = (arrays(i)(j), state(i)(j)(1))
+    }
+    tupleArray
+  }
+
+  def changeSudokuBoardNumbersToStrings(index:Int, elem: Int, s: String) = {
+    var t = s
+    if(index == 8){
+      if (1 to 9 contains elem) {
+        t = t + elem
+      } else{
+        t = t + "_"
+      }
+        t = t + "],"
+    }else{
+      if (1 to 9 contains elem)
+        t = t + elem + ", "
+      else
+        t = t + "_, "
+    }
+      t
+  }
 
   def Sudokudrawer(board: Array[Array[Int]]): Unit = {
     // Draw the Sudoku board
@@ -127,15 +196,8 @@ object GameEngine {
 
     println("  +-------+-------+-------+")
   }
-
-
-
   ///////////
-
-
-  import javax.swing._
-  import java.awt._
-
+  
   def drawBoardGUI_Sudoku(board: Array[Array[(Int, Boolean)]]): Unit = {
     val frame = new JFrame
     val panel = new JPanel(new BorderLayout()) {

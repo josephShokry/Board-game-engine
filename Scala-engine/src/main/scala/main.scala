@@ -15,9 +15,11 @@ import Chess._
 import Checkers._
 import Tic_Tac_Toe._
 import Queens._
+import org.jpl7._
 
 @main
 def main(): Unit = {
+  val test = new Query("")
   val mainMenu = createMainMenu()
 }
 
